@@ -1,5 +1,6 @@
 import time
 import sleep
+import os
 focustime=int(input("How long do you want to focus? Please enter minutes."))
 focussec=focustime*60
 while focussec:
@@ -10,3 +11,4 @@ while focussec:
   seconds-=1
 
 print("Times up! Congrats! You can rest for a while.")
+os.system('pause')
