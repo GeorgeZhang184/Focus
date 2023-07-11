@@ -1,5 +1,4 @@
 import time
-import sleep
 while True:
   focustime=int(input("How long do you want to focus? Please enter minutes."))
   focussec=focustime*60
