@@ -1,36 +1,84 @@
+import tkinter as tk
+from tkinter import messagebox
 import time
-from tkinter import *
-window=Tk()
-window.title('Focus Timer')
-window.geometry("350x200")
-lbl = Label(window, text="Start focusing!", font=("Arial Bold", 35))
-lbl.grid(column=10, row=0)
-def clicked():
-  tite = Label(window, text="How many minutes do you want to focus?", font=("Arial", 20))
-  spin = Spinbox(window, from_=1, to=240, width=10)
-  spin.grid(column=0, row=0)
-  focustime=spin.get()
-  start = Button(window, text="Start focusing!", command=clicked)
-  start.grid(column=2, row=0)
 
-btn = Button(window, text="Start!", bg='green', fg='white', command=clicked)
-btn.grid(column=10, row=10)
-window.mainloop()
-while True:
-  focussec=focustime*60
-  while focussec:
-    mins,secs = divmod(focussec,60)
-    timer='{:02d}:{:02d}'.format(mins,secs)
-    print(timer, end='\n')
-    time.sleep(1)
-    focussec-=1
+class FocusTimer:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Focus Timer")
+        self.root.geometry("285x150")
 
-  print("Times up! Congrats! You can rest for a while.")
-  continuee=input('Continue focusing?')
-  if continuee=='yes' or 'Yes':
-    continue
-  if continuee=='No' or 'no':
-    break
+        self.focus_time = 0
+        self.timer_running = False
 
-input()
+        self.create_welcome_page()
+
+    def create_welcome_page(self):
+        self.label_welcome = tk.Label(self.root, text="Welcome to Focus Timer", font=("Arial", 12))
+        self.label_welcome.pack(pady=20)
+
+        self.start_button = tk.Button(self.root, text="Start", command=self.show_timer_page)
+        self.start_button.pack()
+
+    def show_timer_page(self):
+        self.start_button.pack_forget()
+        self.create_timer_page()
+
+    def create_timer_page(self):
+        self.label_welcome.pack_forget()
+        self.spin_box = tk.Spinbox(self.root, from_=1, to=240, width=10)
+        self.spin_box.pack(pady=10)
+
+        self.label_time_left = tk.Label(self.root, text="How long do you want to focus?(minutes)", font=("Arial", 12))
+        self.label_time_left.pack(pady=20)
+
+        self.next_button = tk.Button(self.root, text="Start!", command=self.start_timer)
+        self.next_button.pack(pady=10)
+        
+    def start_timer(self):
+        self.focus_time = int(self.spin_box.get())
+
+        if self.focus_time > 0:
+            self.focus_time *= 60  # Convert to seconds
+            self.next_button.config(state=tk.DISABLED)
+            self.spin_box.config(state=tk.DISABLED)
+        
+            self.timer_running = True
+            self.update_timer()
+        else:
+            messagebox.showerror("Invalid Time", "Please set a valid focus time!")
+
+    def stop_timer(self):
+        self.timer_running = False
+        self.label_time_left.config(text="Time Left: ")
+        
+        self.next_button.config(state=tk.NORMAL)
+        self.spin_box.config(state=tk.NORMAL)
+
+    def update_timer(self):
+        self.spin_box.pack_forget()
+        self.next_button.pack_forget()
+        if self.focus_time >= 0 and self.timer_running:
+            minutes = self.focus_time // 60
+            seconds = self.focus_time % 60
+
+            self.label_time_left.config(text=f"{minutes:02d}:{seconds:02d}",font=("Arial",57))
+            
+            if self.focus_time == 0:
+                self.timer_running = False
+                self.congrats_page()
+            else:
+                self.focus_time -= 1
+                self.root.after(1000, self.update_timer)
+
+    def congrats_page(self):
+        messagebox.showinfo("Congrats!", "You've completed the focus time!")
+        self.label_time_left.config(text="Time Left: ")
+        self.next_button.config(state=tk.NORMAL)
+        self.spin_box.config(state=tk.NORMAL)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    timer = FocusTimer(root)
+    root.mainloop()
   
